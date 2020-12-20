@@ -140,10 +140,7 @@ void write_file(const vector<string>& bar) {
 	out.close();
 }
 // 将读入的二进制指令转换为Instruction形式
-void BinaryToAssemble(const vector<string>& bin,
-	vector<string>& ass,
-	const map<BinIns, string>& binToIns,
-	map<BinIns, int>& insArgNum)
+void BinaryToAssemble(const vector<string>& bin,vector<string>& ass,const map<BinIns, string>& binToIns,map<BinIns, int>& insArgNum)
 {
 	ass.clear();
 	string binLine;
@@ -187,7 +184,7 @@ void BinaryToAssemble(const vector<string>& bin,
 	}
 }
 
-// 二进制字符串为十进制字符串
+// 十六进制字符串为十进制字符串
 string StringToNum(const string& str)
 {
 	string ret;
@@ -217,10 +214,7 @@ void BinaryToDec(vector<string>& bin)
 		bin[i] = ins;
 	}
 }
-
-int main()
-{
-	// 汇编指令集
+vector<string> getResultOfDeCompile(const vector<string> bin) {
 	vector<string> assIns;
 	InitAssembleInstructions(assIns);
 
@@ -232,12 +226,13 @@ int main()
 	map<BinIns, string> binToAss;
 	InitBinaryToAssemble(assIns, binToAss);
 
-	vector<string> bin; // 保存读入的二进制指令
-	read_file(bin);
-	ReadBinary(bin);
+	//vector<string> bin; // 保存读入的二进制指令
+	//read_file(bin);
+	//BinaryToDec(bin);
+	//ReadBinary(bin);
 	cout << endl;
 	Display(bin);
-	
+
 	cout << endl;
 
 	vector<string> ass; // 保存转换后的汇编指令
@@ -245,8 +240,43 @@ int main()
 
 	Display(ass);
 	write_file(ass);
-	
+
 	cout << endl;
-	system("pause");
-	return 0;
+	return ass;
+
 }
+//int main()
+//{
+//	 汇编指令集
+//	vector<string> assIns;
+//	InitAssembleInstructions(assIns);
+//
+//	 二进制指令-操作数个数
+//	map<BinIns, int> insArgNum;
+//	InitInstrctionArgNumber(insArgNum);
+//
+//	 汇编指令到二进制的映射
+//	map<BinIns, string> binToAss;
+//	InitBinaryToAssemble(assIns, binToAss);
+//
+//	vector<string> bin; // 保存读入的二进制指令
+//	read_file(bin);
+//	BinaryToDec(bin);
+//	ReadBinary(bin);
+//	cout << endl;
+//	Display(bin);
+//
+//	cout << endl;
+//
+//	vector<string> ass; // 保存转换后的汇编指令
+//	BinaryToAssemble(bin, ass, binToAss, insArgNum);
+//
+//	Display(ass);
+//	write_file(ass);
+//
+//	cout << endl;
+//	return ass;
+//
+//	system("pause");
+//	return 0;
+//}
