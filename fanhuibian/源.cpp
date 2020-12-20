@@ -6,7 +6,7 @@
 #include <map>
 #include<fstream>
 using namespace std;
-
+int my_count = 0;
 enum BinIns;
 
 // 二进制指令结构体
@@ -107,6 +107,7 @@ void read_file(vector<string>&bin) {
 	}
 	string buf;
 	while (getline(in, buf)) {
+		my_count++;
 		bin.push_back(buf);
 	}
 	in.close();
@@ -139,7 +140,63 @@ void write_file(const vector<string>& bar) {
 	}
 	out.close();
 }
-// 将读入的二进制指令转换为Instruction形式
+int todec(string a) {
+	int count = 0;
+	for (int i = 0; i < a.size(); i++) {
+		count += int(a[i]-'0')*pow(2, (a.size()-i-1));
+	}
+	return count;
+}
+void MyBinaryToAssemble(const vector<string>& bin, Instruction *&ins,vector<string>& ass, const map<BinIns, string>& binToIns)
+{
+	ass.clear();
+	string binLine;
+	for (auto i = 0; i != bin.size(); ++i)
+	{
+		binLine += bin[i] + '\t';
+	}
+
+	//cout << binLine << endl;
+
+	istringstream sin(binLine);//从binline中读取字符
+	string strOp, strArg;
+	string op;
+	string arg;
+	string assIns;
+	BinIns opBin;
+	string a, b;
+	int i = 0;
+	while (sin >> strOp)//strop接受读入的字符
+	{
+
+		ins[i].op = static_cast<BinIns>(todec(strOp.substr(0, 8)));		
+		ins[i].arg = todec(strOp.substr(8, 32));
+		//opBin = static_cast<BinIns>(atoi(strOp.c_str()));//string转char*转int
+		auto cit = binToIns.find(ins[i].op);
+		if (cit == binToIns.end())
+		{
+			// 非法二进制指令
+			// 忽略处理
+			;
+			break;
+		}
+		op = cit->second;
+		int argNum = ins[i].arg;
+		if (argNum > 0)
+		{
+		
+			arg = to_string( ins[i].arg);
+		}
+		else
+		{
+			arg = "";
+		}
+		assIns = op + '\t' + arg;
+		ass.push_back(assIns);
+		i++;
+	}
+}
+// 将读入的二进制指令转换为汇编指令
 void BinaryToAssemble(const vector<string>& bin,vector<string>& ass,const map<BinIns, string>& binToIns,map<BinIns, int>& insArgNum)
 {
 	ass.clear();
@@ -151,15 +208,15 @@ void BinaryToAssemble(const vector<string>& bin,vector<string>& ass,const map<Bi
 
 	//cout << binLine << endl;
 
-	istringstream sin(binLine);
+	istringstream sin(binLine);//从binline中读取字符
 	string strOp, strArg;
 	string op;
 	string arg;
 	string assIns;
 	BinIns opBin;
-	while (sin >> strOp)
+	while (sin >> strOp)//strop接受读入的字符
 	{
-		opBin = static_cast<BinIns>(atoi(strOp.c_str()));
+		opBin = static_cast<BinIns>(atoi(strOp.c_str()));//string转char*转int
 		auto cit = binToIns.find(opBin);
 		if (cit == binToIns.end())
 		{
@@ -214,55 +271,22 @@ void BinaryToDec(vector<string>& bin)
 		bin[i] = ins;
 	}
 }
-vector<string> getResultOfDeCompile(const vector<string> bin) {
-	vector<string> assIns;
-	InitAssembleInstructions(assIns);
-
-	// 二进制指令-操作数个数
-	map<BinIns, int> insArgNum;
-	InitInstrctionArgNumber(insArgNum);
-
-	// 汇编指令到二进制的映射
-	map<BinIns, string> binToAss;
-	InitBinaryToAssemble(assIns, binToAss);
-
-	//vector<string> bin; // 保存读入的二进制指令
-	//read_file(bin);
-	//BinaryToDec(bin);
-	//ReadBinary(bin);
-	cout << endl;
-	Display(bin);
-
-	cout << endl;
-
-	vector<string> ass; // 保存转换后的汇编指令
-	BinaryToAssemble(bin, ass, binToAss, insArgNum);
-
-	Display(ass);
-	write_file(ass);
-
-	cout << endl;
-	return ass;
-
-}
-//int main()
-//{
-//	 汇编指令集
+//vector<string> getResultOfDeCompile(const vector<string> bin) {
 //	vector<string> assIns;
 //	InitAssembleInstructions(assIns);
 //
-//	 二进制指令-操作数个数
+//	// 二进制指令-操作数个数
 //	map<BinIns, int> insArgNum;
 //	InitInstrctionArgNumber(insArgNum);
 //
-//	 汇编指令到二进制的映射
+//	// 汇编指令到二进制的映射
 //	map<BinIns, string> binToAss;
 //	InitBinaryToAssemble(assIns, binToAss);
 //
-//	vector<string> bin; // 保存读入的二进制指令
-//	read_file(bin);
-//	BinaryToDec(bin);
-//	ReadBinary(bin);
+//	//vector<string> bin; // 保存读入的二进制指令
+//	//read_file(bin);
+//	//BinaryToDec(bin);
+//	//ReadBinary(bin);
 //	cout << endl;
 //	Display(bin);
 //
@@ -277,6 +301,41 @@ vector<string> getResultOfDeCompile(const vector<string> bin) {
 //	cout << endl;
 //	return ass;
 //
-//	system("pause");
-//	return 0;
 //}
+int main()
+{
+	// 汇编指令集
+	vector<string> assIns;
+	InitAssembleInstructions(assIns);
+
+	// 二进制指令-操作数个数
+	map<BinIns, int> insArgNum;
+	InitInstrctionArgNumber(insArgNum);
+
+	// 汇编指令到二进制的映射
+	map<BinIns, string> binToAss;
+	InitBinaryToAssemble(assIns, binToAss);
+
+	vector<string> bin; // 保存读入的二进制指令
+	read_file(bin);
+//	BinaryToDec(bin);
+	//ReadBinary(bin);
+	cout << endl;
+	Display(bin);
+
+	cout << endl;
+
+	vector<string> ass; // 保存转换后的汇编指令
+	/*如果上传格式是有空格的十进制，用这个函数*/
+	//BinaryToAssemble(bin, ass, binToAss, insArgNum);
+	/*如果上传格式是无空格的二进制，用这个函数*/
+	Instruction* ins = (Instruction*)malloc(sizeof(Instruction)*my_count);
+	MyBinaryToAssemble(bin, ins, ass, binToAss);
+	Display(ass);
+	write_file(ass);
+
+	cout << endl;
+
+	system("pause");
+	return 0;
+}
